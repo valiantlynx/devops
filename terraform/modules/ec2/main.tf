@@ -30,7 +30,7 @@ resource "null_resource" "run_ansible" {
   depends_on = [local_file.dynamic_inventory]
 
   provisioner "local-exec" {
-    command = "ansible-playbook -i ${self.triggers.inventory_file} ../../ansible/deploy-app.yml"
+    command = "ansible-playbook -i ${self.triggers.inventory_file} ../../../ansible/deploy-app.yml"
     environment = {
       ANSIBLE_HOST_KEY_CHECKING = "False"
     }
