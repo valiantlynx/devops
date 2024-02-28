@@ -18,3 +18,8 @@ variable "key_name" {
   description = "Key name for EC2"
   type = string
 }
+
+variable "private_key_path" {
+  description = "Key full path"
+  type = string
+}

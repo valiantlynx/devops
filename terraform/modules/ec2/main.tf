@@ -6,6 +6,7 @@ resource "aws_instance" "web" {
   vpc_security_group_ids = [var.sg_id]
   subnet_id = var.subnets[count.index]
   availability_zone = data.aws_availability_zones.available.names[count.index]
+  key_name = var.key_name
 
   tags = {
     Name = var.ec2_names[count.index]
@@ -16,7 +17,7 @@ data "template_file" "inventory" {
   template = <<-EOT
     [ec2_instances]
     %{ for ip in aws_instance.web.*.public_ip ~}
-    ${ip} ansible_user=ubuntu ansible_ssh_private_key_file=${path.module}/${var.key_name}
+    ${ip} ansible_user=ubuntu ansible_ssh_private_key_file=${var.private_key_path}
     %{ endfor ~}
     EOT
 }
