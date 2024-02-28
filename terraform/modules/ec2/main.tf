@@ -11,6 +11,10 @@ resource "aws_instance" "web" {
   tags = {
     Name = var.ec2_names[count.index]
   }
+
+  provisioner "local-exec" {
+    command = "touch ${path.module}/dynamic_inventory.ini"
+  }
 }
 
 data "template_file" "inventory" {
@@ -23,15 +27,21 @@ data "template_file" "inventory" {
 }
 
 resource "local_file" "dynamic_inventory" {
+  depends_on = [ aws_instance.web ]
+
   filename = "${path.module}/dynamic_inventory.ini"
   content  = data.template_file.inventory.rendered
+
+  provisioner "local-exec" {
+    command = "chmod 400 ${local_file.dynamic_inventory.filename}"
+  }
 }
 
 resource "null_resource" "run_ansible" {
   depends_on = [local_file.dynamic_inventory]
 
   provisioner "local-exec" {
-    command = "ansible-playbook -i ${self.triggers.inventory_file} ../../../ansible/deploy-app.yml"
+    command = "sleep 30; ansible-playbook -i ${self.triggers.inventory_file} ../../../ansible/deploy-app.yml"
     environment = {
       ANSIBLE_HOST_KEY_CHECKING = "False"
     }
