@@ -13,3 +13,8 @@ variable "ec2_names" {
     type = list(string)
     default = ["WebServer1", "WebServer2"]
 }
+
+variable "key_name" {
+  description = "Key name for EC2"
+  type = string
+}

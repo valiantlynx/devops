@@ -7,3 +7,9 @@ variable "subnet_cidr" {
     description = "Subnet CIDRS"
     type = list(string)
 }
+
+variable "key_name" {
+    description = "Key Name"
+    type = string
+    default = "terraform-key"
+}
