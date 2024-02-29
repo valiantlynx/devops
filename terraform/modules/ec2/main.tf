@@ -32,11 +32,16 @@ resource "aws_instance" "web" {
 
 data "template_file" "inventory" {
   template = <<-EOT
-    [all]
-    %{ for ip in aws_instance.web.*.public_ip ~}
-    ${ip} ansible_user=ubuntu ansible_ssh_private_key_file=${var.private_key_path}
+    [ec2_instances:children]
+    %{ for child_node in var.ec2_names ~}
+    ${child_node}
     %{ endfor ~}
-    EOT
+
+    %{ for index in range(length(aws_instance.web.*.public_ip)) ~}
+    [${var.ec2_names[index]}]
+    ${aws_instance.web.*.public_ip[index]} ansible_user=ubuntu ansible_ssh_private_key_file=${var.private_key_path}
+    %{ endfor ~}
+  EOT
 }
 
 resource "local_file" "dynamic_inventory" {
@@ -60,14 +65,11 @@ resource "null_resource" "run_ansible" {
       ansible-playbook -i ${self.triggers.inventory_file} ../../../ansible/deploy-app.yml
     EOF
 
-    environment = {
-      ANSIBLE_HOST_KEY_CHECKING = "False"
-    }
-
     working_dir = path.module
   }
 
   triggers = {
+    always_run = "${timestamp()}"
     inventory_file = local_file.dynamic_inventory.filename
   }
 }

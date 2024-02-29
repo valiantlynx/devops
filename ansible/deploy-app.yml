@@ -1,5 +1,5 @@
 ---
-- hosts: all
+- hosts: ec2_instances
   become: true
   tasks:
     - name: Update apt cache
