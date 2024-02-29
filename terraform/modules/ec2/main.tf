@@ -13,7 +13,7 @@ resource "aws_instance" "web" {
   }
 
   provisioner "local-exec" {
-    command = "touch ${path.module}/dynamic_inventory.ini"
+    command = "touch ${abspath(path.module)}/dynamic_inventory.ini"
   }
 
   provisioner "remote-exec" {
@@ -24,7 +24,7 @@ resource "aws_instance" "web" {
     connection {
       type        = "ssh"
       user        = "ubuntu"
-      private_key = file(var.private_key_path)
+      private_key = file(abspath(var.private_key_path))
       host        = self.public_ip
     }
   }
@@ -39,7 +39,7 @@ data "template_file" "inventory" {
 
     %{ for index in range(length(aws_instance.web.*.public_ip)) ~}
     [${var.ec2_names[index]}]
-    ${aws_instance.web.*.public_ip[index]} ansible_user=ubuntu ansible_ssh_private_key_file=${var.private_key_path}
+    ${aws_instance.web.*.public_ip[index]} ansible_user=ubuntu ansible_ssh_private_key_file=${abspath(var.private_key_path)}
     %{ endfor ~}
   EOT
 }
@@ -47,7 +47,7 @@ data "template_file" "inventory" {
 resource "local_file" "dynamic_inventory" {
   depends_on = [ aws_instance.web ]
 
-  filename = "${path.module}/dynamic_inventory.ini"
+  filename = "${abspath(path.module)}/dynamic_inventory.ini"
   content  = data.template_file.inventory.rendered
 
   provisioner "local-exec" {
@@ -62,7 +62,7 @@ resource "null_resource" "run_ansible" {
     command = <<EOF
       sleep 30;
       sudo apt update -y;
-      ansible-playbook -i ${self.triggers.inventory_file} ../../../ansible/deploy-app.yml
+      env ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ${self.triggers.inventory_file} ../../../ansible/deploy-app.yml
     EOF
 
     working_dir = path.module
@@ -70,6 +70,6 @@ resource "null_resource" "run_ansible" {
 
   triggers = {
     always_run = "${timestamp()}"
-    inventory_file = local_file.dynamic_inventory.filename
+    inventory_file = abspath(local_file.dynamic_inventory.filename)
   }
 }
