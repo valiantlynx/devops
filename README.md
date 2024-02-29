@@ -52,4 +52,4 @@ terraform apply --auto-approve
 ´´´
 terraform destroy --auto-approve
 ´´´	
-ansible-playbook -i 13.51.241.166, -e "ansible_user=ubuntu ansible_ssh_private_key_file=modules/pk/terraform-key.pem" ../ansible/deploy-app.yml
+ansible-playbook -i 13.51.178.36, -e "ansible_user=ubuntu ansible_ssh_private_key_file=modules/pk/terraform-key.pem" ../ansible/deploy-app.yml

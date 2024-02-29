@@ -15,11 +15,24 @@ resource "aws_instance" "web" {
   provisioner "local-exec" {
     command = "touch ${path.module}/dynamic_inventory.ini"
   }
+
+  provisioner "remote-exec" {
+    inline = [
+      "echo 'SSH ready!'"
+    ]
+
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = file(var.private_key_path)
+      host        = self.public_ip
+    }
+  }
 }
 
 data "template_file" "inventory" {
   template = <<-EOT
-    [ec2_instances]
+    [all]
     %{ for ip in aws_instance.web.*.public_ip ~}
     ${ip} ansible_user=ubuntu ansible_ssh_private_key_file=${var.private_key_path}
     %{ endfor ~}
@@ -41,10 +54,16 @@ resource "null_resource" "run_ansible" {
   depends_on = [local_file.dynamic_inventory]
 
   provisioner "local-exec" {
-    command = "sleep 30; ansible-playbook -i ${self.triggers.inventory_file} ../../../ansible/deploy-app.yml"
+    command = <<EOF
+      sleep 30;
+      sudo apt update -y;
+      ansible-playbook -i ${self.triggers.inventory_file} ../../../ansible/deploy-app.yml
+    EOF
+
     environment = {
       ANSIBLE_HOST_KEY_CHECKING = "False"
     }
+
     working_dir = path.module
   }
 
