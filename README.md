@@ -31,7 +31,7 @@ Before you begin, ensure you have the following prerequisites:
 
 ## Getting Started
 set the aws env variables
-´´´
+´´´bash
 aws configure
 ´´´
 
@@ -57,4 +57,5 @@ terraform destroy --auto-approve
 
 ´´´
 ansible-playbook -i 13.60.38.190, -e "ansible_user=ubuntu ansible_ssh_private_key_file=modules/pk/terraform-key.pem" ../ansible/deploy-app.yml
+ansible-playbook -i modules/ec2/dynamic_inventory.ini ../ansible/deploy-app.yml
 ´´´
