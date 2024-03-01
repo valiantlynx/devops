@@ -19,5 +19,9 @@
         state: present
         executable: pip3
 
+    - name: Remove existing Docker container
+      command: docker rm -f node-app-container
+      ignore_errors: yes
+
     - name: Run Docker container
-      command: docker run -d -p 3000:3000 --name node-app-container valiantlynx/svelte-altlokalt
+      command: docker run -d -p 3000:3000 --name node-app-container valiantlynx/svelte-manga
