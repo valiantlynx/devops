@@ -1,0 +1,69 @@
+---
+- name: Copy Docker Compose file to the Ubuntu user's home
+  ansible.builtin.copy:
+    dest: "{{ ansible_env.HOME }}/docker-compose.yml"
+    src: "docker/docker-compose.yml"
+    mode: "0644"
+    force: true
+
+- name: Copy initial NGINX HTTP configuration to the EC2 instance
+  ansible.builtin.copy:
+    dest: "{{ ansible_env.HOME }}/"
+    src: "nginx"
+    mode: "0644"
+    force: true
+
+- name: Copy initial NGINX HTTP configuration to the EC2 instance
+  ansible.builtin.copy:
+    dest: "{{ ansible_env.HOME }}/nginx/nginx.conf"
+    src: "nginx/http.conf"
+    mode: "0644"
+    force: true
+
+- name: Pull the latest images with Docker Compose
+  command: docker-compose pull
+  become: true # Escalate if necessary for Docker commands
+  args:
+    chdir: "{{ ansible_env.HOME }}/" # Ensure this points to where docker-compose.yml is located
+
+- name: Deploy services using Docker Compose
+  command: docker-compose up -d nginx
+  become: true # Escalate if necessary for Docker commands
+  args:
+    chdir: "{{ ansible_env.HOME }}/" # Ensure this points to where docker-compose.yml is located
+
+- name: Obtain SSL certificates with Certbot
+  command: docker-compose run --rm certbot
+  become: true
+  args:
+    chdir: "{{ ansible_env.HOME }}/"
+
+- name: Copy NGINX HTTPS configuration to the EC2 instance (switch to HTTPS)
+  ansible.builtin.copy:
+    dest: "{{ ansible_env.HOME }}/nginx/nginx.conf"
+    src: "nginx/https.conf"
+    mode: "0644"
+    force: true
+
+- name: Stop existing Docker Compose services
+  command: docker-compose down
+  become: true
+  args:
+    chdir: "{{ ansible_env.HOME }}/"
+
+- name: Deploy services using Docker Compose
+  command: docker-compose up -d
+  become: true
+  args:
+    chdir: "{{ ansible_env.HOME }}/"
+
+
+- name: Schedule automated certificate renewal
+  ansible.builtin.cron:
+    name: "Renew Let's Encrypt certificates"
+    day: "1"
+    month: "*/2"
+    hour: "5"
+    minute: "0"
+    job: "cd {{ ansible_env.HOME }} && docker-compose run --rm certbot renew && docker-compose exec nginx nginx -s reload"
+    user: ubuntu
