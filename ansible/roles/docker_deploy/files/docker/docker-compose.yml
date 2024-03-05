@@ -1,0 +1,39 @@
+---
+version: '3.8'
+
+services:
+  manga-app:
+    image: valiantlynx/svelte-manga:latest
+    container_name: manga-app
+    restart: always
+
+  blog-app:
+    image: valiantlynx/svelte-altlokalt:latest
+    container_name: blog-app
+    restart: always
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/logs:/var/log/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    depends_on:
+      - manga-app
+      - blog-app
+    restart: unless-stopped
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/logs:/var/log/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    command: certonly --webroot -w /var/www/certbot --force-renewal --email valiantlynxz@gmail.com -d ghostscans.com -d ethermanga.com -d knightscans.com -d www.ghostscans.com -d www.ethermanga.com -d www.knightscans.com --agree-tos --non-interactive
+
