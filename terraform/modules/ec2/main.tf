@@ -1,3 +1,4 @@
+
 resource "aws_instance" "web" {
   count = length(var.ec2_names)
   ami           = data.aws_ami.ubuntu.id
@@ -10,10 +11,6 @@ resource "aws_instance" "web" {
 
   tags = {
     Name = var.ec2_names[count.index]
-  }
-
-  provisioner "local-exec" {
-    command = "touch ${abspath(path.module)}/dynamic_inventory.ini"
   }
 
   provisioner "remote-exec" {
@@ -47,7 +44,7 @@ data "template_file" "inventory" {
 resource "local_file" "dynamic_inventory" {
   depends_on = [ aws_instance.web ]
 
-  filename = "${abspath(path.module)}/dynamic_inventory.ini"
+  filename = "${abspath(path.module)}/../../../ansible/inventory/dynamic_inventory.ini"
   content  = data.template_file.inventory.rendered
 
   provisioner "local-exec" {
