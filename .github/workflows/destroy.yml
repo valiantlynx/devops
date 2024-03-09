@@ -1,22 +1,8 @@
-name: Deploy
-run-name: ${{ github.actor }} is deploying 🚀🚀🚀
+name: Destroy
+run-name: ${{ github.actor }} is destroying production 💥💥💥
 
 on:
-  push:
-    branches:
-      - 'main'
-    paths:
-      - '**'
-  pull_request:
-    branches:
-      - 'main'
-    paths:
-      - '**'
-  schedule:
-    - cron: '0 0 * * 0'
   workflow_dispatch:
-  workflow_call:  # Added to allow this workflow to be called by other workflows
-
 
 env:
   AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
@@ -26,7 +12,6 @@ jobs:
   build-infra:
     name: terraform-ci-cd
     runs-on: ubuntu-latest
-    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -44,7 +29,7 @@ jobs:
         id: plan
         run: terraform plan
         working-directory: ./terraform
-      - name: Terraform Apply
-        id: apply
-        run: terraform apply --auto-approve
+      - name: Terraform destroy
+        id: destroy
+        run: terraform destroy --auto-approve
         working-directory: ./terraform

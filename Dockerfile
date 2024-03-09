@@ -1,0 +1,34 @@
+# Use Ubuntu as the base image to set up the development environment
+FROM ubuntu:20.04
+
+# Avoid prompts from apt
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Update and install dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    sudo \
+    software-properties-common \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install Ansible
+RUN add-apt-repository --yes --update ppa:ansible/ansible \
+    && apt-get install -y ansible
+
+# Install Terraform
+RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add - \
+    && apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main" \
+    && apt-get update && apt-get install -y terraform
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy the project files into the container
+COPY . .
+
+# Set bash to handle terminal commands, replacing the original CMD if you need a command to run
+SHELL ["/bin/bash", "-c"]
+
+# Example command: Validate Terraform files (You can change this to whatever command suits your project)
+CMD ["terraform", "validate"]

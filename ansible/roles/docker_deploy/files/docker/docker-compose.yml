@@ -1,17 +1,13 @@
 ---
 version: '3.8'
 
+volumes:
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+
 services:
-  manga-app:
-    image: valiantlynx/svelte-manga:latest
-    container_name: manga-app
-    restart: always
-
-  blog-app:
-    image: valiantlynx/svelte-altlokalt:latest
-    container_name: blog-app
-    restart: always
-
   nginx:
     image: nginx:latest
     container_name: nginx
@@ -24,16 +20,85 @@ services:
       - ./certbot/logs:/var/log/letsencrypt
       - ./certbot/www:/var/www/certbot
     depends_on:
-      - manga-app
-      - blog-app
+      - uptime-kuma
+      - grafana
     restart: unless-stopped
+    networks:
+      - monitoring
 
   certbot:
     image: certbot/certbot
     container_name: certbot
+    restart: unless-stopped
     volumes:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/logs:/var/log/letsencrypt
       - ./certbot/www:/var/www/certbot
-    command: certonly --webroot -w /var/www/certbot --force-renewal --email valiantlynxz@gmail.com -d ghostscans.com -d ethermanga.com -d knightscans.com -d www.ghostscans.com -d www.ethermanga.com -d www.knightscans.com --agree-tos --non-interactive
+    networks:
+      - monitoring
+    command: >
+      certonly --webroot -w /var/www/certbot --force-renewal --email valiantlynxz@gmail.com
+      -d monitor.altlokalt.com
+      -d kuma.altlokalt.com
+      --agree-tos --non-interactive
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - /etc/prometheus:/config
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command: "--config.file=/etc/prometheus/prometheus.yml"
+    restart: unless-stopped
+    networks:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    volumes:
+      - grafana-data:/var/lib/grafana
+    restart: unless-stopped
+    networks:
+      - monitoring
+
+  node-exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node_exporter
+    command: 
+      - '--path.rootfs=/host'
+    pid: host
+    restart: unless-stopped
+    networks:
+      - monitoring
+    volumes:
+      - '/:/host:ro,rslave'
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    restart: unless-stopped
+    privileged: true
+    devices:
+      - /dev/kmsg
+    networks:
+      - monitoring
+
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime-kuma
+    volumes:
+      - ./uptime-kuma:/app/data
+    restart: always
+    networks:
+      - monitoring
+      
+networks:
+  monitoring: {}
