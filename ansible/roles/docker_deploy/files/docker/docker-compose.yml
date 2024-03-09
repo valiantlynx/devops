@@ -38,8 +38,8 @@ services:
       - monitoring
     command: >
       certonly --webroot -w /var/www/certbot --force-renewal --email valiantlynxz@gmail.com
-      -d monitor.altlokalt.com
-      -d kuma.altlokalt.com
+      -d monitor.valiantlynx.com
+      -d kuma.valiantlynx.com
       --agree-tos --non-interactive
 
   prometheus:
