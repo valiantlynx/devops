@@ -1,6 +1,6 @@
 # ALB
 resource "aws_lb" "alb" {
-  name               = "altlokalt-load-balancer"
+  name               = "devops-load-balancer"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [var.sg_id]
