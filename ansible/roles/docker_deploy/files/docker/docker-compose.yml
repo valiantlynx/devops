@@ -39,7 +39,7 @@ services:
       certonly --webroot -w /var/www/certbot --force-renewal --email valiantlynxz@gmail.com
       -d monitor.valiantlynx.com
       -d kuma.valiantlynx.com
-      -d admin.valiantlynx.com
+      -d test.valiantlynx.com
       --agree-tos --non-interactive
 
   prometheus:
