@@ -29,7 +29,6 @@ services:
   certbot:
     image: certbot/certbot
     container_name: certbot
-    restart: unless-stopped
     volumes:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/logs:/var/log/letsencrypt
