@@ -5,6 +5,13 @@
     src: "docker/docker-compose.yml"
     mode: "0644"
     force: true
+    
+- name: Copy Prometheus file to the Ubuntu user's home
+  ansible.builtin.copy:
+    dest: "{{ ansible_env.HOME }}/prometheus.yml"
+    src: "docker/prometheus.yml"
+    mode: "0644"
+    force: true
 
 - name: Copy initial NGINX HTTP configuration to the EC2 instance
   ansible.builtin.copy:
@@ -57,6 +64,11 @@
   args:
     chdir: "{{ ansible_env.HOME }}/"
 
+- name: Delete all hanging stuff
+  command: docker system prune -a -f
+  become: true
+  args:
+    chdir: "{{ ansible_env.HOME }}/"
 
 - name: Schedule automated certificate renewal
   ansible.builtin.cron:
@@ -67,3 +79,4 @@
     minute: "0"
     job: "cd {{ ansible_env.HOME }} && docker-compose run --rm certbot renew && docker-compose exec nginx nginx -s reload"
     user: ubuntu
+
