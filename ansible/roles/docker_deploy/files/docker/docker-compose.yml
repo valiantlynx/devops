@@ -37,6 +37,7 @@ services:
       - monitoring
     command: >
       certonly --webroot -w /var/www/certbot --force-renewal --email valiantlynxz@gmail.com
+      -d animevariant.co -d www.animevariant.co
       -d monitor.valiantlynx.com
       -d kuma.valiantlynx.com
       -d test.valiantlynx.com
