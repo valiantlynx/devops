@@ -10,13 +10,13 @@ locals {
           value   = var.public_ip
         }
       },
-      // A or CNAME records for subdomains, including a special case for 'www'
+      // A or CNAME records for subdomains
       if details.include_subdomains {
-        for subdomain in details.subdomains : "${subdomain}.${domain}" = {
+        for subdomain in details.subdomains : "${subdomain.name}.${domain}" = {
           zone_id = details.zone_id,
-          name    = "${subdomain}.${domain}",
-          type    = subdomain == "www" ? "CNAME" : "A", // Use CNAME for 'www', A for others
-          value   = subdomain == "www" ? domain : var.public_ip // Point 'www' to root domain, others to IP
+          name    = "${subdomain.name}.${domain}",
+          type    = subdomain.name == "www" ? "CNAME" : "A", // Use CNAME for 'www', A for others
+          value   = subdomain.name == "www" ? domain : var.public_ip // Point 'www' to root domain, others to IP
         }
       }
     ]

@@ -12,8 +12,8 @@ services:
       - monitoring
     command: >
       certonly --webroot -w /var/www/certbot --force-renewal --email valiantlynxz@gmail.com
-      {% for domain in domain_list %}
-      -d {{ domain }}
+      {% for domain_detail in detailed_domain_list %}
+      -d {{ domain_detail.domain }}
       {% endfor %}
       --agree-tos --non-interactive
 

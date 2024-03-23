@@ -8,19 +8,33 @@ variable "subnet_cidr" {
     type = list(string)
 }
 
-
 variable "cloudflare_zone_ids" {
-  description = "Map of domain to Cloudflare zone IDs, subdomains, and inclusion flags"
+  description = "Map of domain to Cloudflare zone IDs, subdomains, service routing, and inclusion flags"
   type = map(object({
-    zone_id     = string
-    subdomains  = list(string)
-    include_root = bool
+    zone_id            = string
+    subdomains         = list(object({
+      name             = string
+      service          = string
+      port             = number
+    }))
+    include_root       = bool
     include_subdomains = bool
   }))
   default = {
     "valiantlynx.com" = {
       zone_id = "cc6721eb589ec5e29adc0a306fa5d5fe",
-      subdomains = ["monitor", "kuma"],
+      subdomains = [
+        {
+          name    = "monitor",
+          service = "grafana",
+          port    = 3000
+        },
+        {
+          name    = "kuma",
+          service = "uptime-kuma",
+          port    = 3001
+        }
+      ],
       include_root = false,
       include_subdomains = true
     }

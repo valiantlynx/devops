@@ -6,26 +6,26 @@ http {
     server_tokens off;
     charset utf-8;
 
+    {% for domain_detail in detailed_domain_list %}
     # Always redirect HTTP to HTTPS
     server {
         listen 80;
-        server_name {% for domain in domain_list %}{{ domain }} {% endfor %};
+        server_name {{ domain_detail.domain }};
         return 301 https://$host$request_uri;
     }
     # Configuration for astromanga.com
     server {
         listen 443 ssl http2;
-        server_name {% for domain in domain_list %}{{ domain }} {% endfor %};
+        server_name {{ domain_detail.domain }};
 
-        # Use the first domain in the list for SSL certificate paths
-        {% set primary_domain = domain_list | list | first %}
-        ssl_certificate /etc/letsencrypt/live/{{ primary_domain }}/fullchain.pem;
-        ssl_certificate_key /etc/letsencrypt/live/{{ primary_domain }}/privkey.pem;
+        ssl_certificate /etc/letsencrypt/live/{{ domain_detail.domain }}/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/{{ domain_detail.domain }}/privkey.pem;
+
         # include /etc/letsencrypt/options-ssl-nginx.conf; # Recommended SSL settings
         # ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # DH parameters
 
         location / {
-            proxy_pass http://svelte-leaflet:3000;
+            proxy_pass http://{{ domain_detail.service }}:{{ domain_detail.port }};
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -36,5 +36,6 @@ http {
             root /var/www/certbot;
         }
     }
+    {% endfor %}
 }
 

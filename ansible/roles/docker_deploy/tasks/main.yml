@@ -64,20 +64,21 @@
     chdir: "{{ ansible_env.HOME }}/" # Ensure this points to where docker-compose.yml is located
 
 
-- name: Build a list of domain names from cloudflare_zone_ids
+- name: Build a detailed domain list from cloudflare_zone_ids
   set_fact:
-    domain_list: "{{ domain_list | default([]) + [item.key] }}"
+    detailed_domain_list: "{{ detailed_domain_list | default([]) + [ {'domain': item.key, 'service': item.value.service, 'port': item.value.port} ] }}"
   with_dict: "{{ cloudflare_zone_ids }}"
   when: item.value.include_root
 
-- name: Add subdomains to the domain list
+- name: Add subdomains with details to the domain list
   set_fact:
-    domain_list: "{{ domain_list | default([]) + [subdomain + '.' + item.key] }}"
+    detailed_domain_list: "{{ detailed_domain_list | default([]) + [ {'domain': subdomain.name + '.' + item.key, 'service': subdomain.service, 'port': subdomain.port} ] }}"
   loop: "{{ cloudflare_zone_ids | dict2items }}"
   loop_control:
     loop_var: item
   with_items: "{{ item.value.subdomains }}"
   when: item.value.include_subdomains
+
 
 
 - name: Determine the primary domain

@@ -6,9 +6,13 @@ variable "public_ip" {
 variable "cloudflare_zone_ids" {
   description = "Map of domain to Cloudflare zone IDs, subdomains, and inclusion flags"
   type = map(object({
-    zone_id     = string
-    subdomains  = list(string)
-    include_root = bool
+    zone_id            = string
+    subdomains         = list(object({
+      name             = string
+      service          = string
+      port             = number
+    }))
+    include_root       = bool
     include_subdomains = bool
   }))
 }
