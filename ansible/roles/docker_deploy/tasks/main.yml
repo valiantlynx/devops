@@ -64,20 +64,24 @@
     chdir: "{{ ansible_env.HOME }}/" # Ensure this points to where docker-compose.yml is located
 
 
-- name: Build a detailed domain list from cloudflare_zone_ids
+- name: Build a detailed domain list from cloudflare_zone_ids for root domains
   set_fact:
-    detailed_domain_list: "{{ detailed_domain_list | default([]) + [ {'domain': item.key, 'service': item.value.service, 'port': item.value.port} ] }}"
-  with_dict: "{{ cloudflare_zone_ids }}"
+    detailed_domain_list: "{{ detailed_domain_list | default([]) + 
+      [{'domain': item.key, 'service': item.value.service, 'port': item.value.port}] }}"
+  loop: "{{ lookup('dict', cloudflare_zone_ids) }}"
   when: item.value.include_root
+  loop_control:
+    loop_var: item
 
 - name: Add subdomains with details to the domain list
   set_fact:
-    detailed_domain_list: "{{ detailed_domain_list | default([]) + [ {'domain': subdomain.name + '.' + item.key, 'service': subdomain.service, 'port': subdomain.port} ] }}"
-  loop: "{{ cloudflare_zone_ids | dict2items }}"
+    detailed_domain_list: "{{ detailed_domain_list | default([]) + 
+      [{'domain': subdomain.name + '.' + item.key, 'service': subdomain.service, 'port': subdomain.port} 
+      for subdomain in item.value.subdomains] }}"
+  loop: "{{ lookup('dict', cloudflare_zone_ids) }}"
+  when: item.value.include_subdomains
   loop_control:
     loop_var: item
-  with_items: "{{ item.value.subdomains }}"
-  when: item.value.include_subdomains
 
 
 
