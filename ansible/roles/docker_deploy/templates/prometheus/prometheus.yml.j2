@@ -14,6 +14,8 @@ scrape_configs:
     static_configs:
       - targets: ['cadvisor:8080']
 
+
+
   - job_name: 'node_exporter_altlokalt'
     static_configs:
       - targets: ['16.16.28.87:9100']
@@ -21,6 +23,8 @@ scrape_configs:
   - job_name: 'cadvisor_altlokalt'
     static_configs:
       - targets: ['16.16.28.87:8080']
+
+
 
   - job_name: 'node_exporter_animevariant'
     static_configs:

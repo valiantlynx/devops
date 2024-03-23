@@ -26,30 +26,13 @@ services:
     networks:
       - monitoring
 
-  certbot:
-    image: certbot/certbot
-    container_name: certbot
-    volumes:
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/logs:/var/log/letsencrypt
-      - ./certbot/www:/var/www/certbot
-    networks:
-      - monitoring
-    command: >
-      certonly --webroot -w /var/www/certbot --force-renewal --email valiantlynxz@gmail.com
-      -d animevariant.co -d www.animevariant.co
-      -d monitor.valiantlynx.com
-      -d kuma.valiantlynx.com
-      -d test.valiantlynx.com
-      --agree-tos --non-interactive
-
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
     volumes:
       - /etc/prometheus:/config
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     command: "--config.file=/etc/prometheus/prometheus.yml"
     restart: unless-stopped
     networks:
@@ -58,8 +41,12 @@ services:
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
+    ports:
+      - 3000:3000
     volumes:
       - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/grafana.ini:/etc/grafana/grafana.ini
     restart: unless-stopped
     networks:
       - monitoring
@@ -67,6 +54,8 @@ services:
   node-exporter:
     image: quay.io/prometheus/node-exporter:latest
     container_name: node_exporter
+    ports:
+      - 9100:9100
     command: 
       - '--path.rootfs=/host'
     pid: host
@@ -79,6 +68,8 @@ services:
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: cadvisor
+    ports:
+      - 8080:8080
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
@@ -95,6 +86,8 @@ services:
   uptime-kuma:
     image: louislam/uptime-kuma:1
     container_name: uptime-kuma
+    ports:
+      - 3001:3001
     volumes:
       - ./uptime-kuma:/app/data
     restart: always

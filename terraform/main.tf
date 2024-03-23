@@ -20,6 +20,13 @@ module "ec2" {
   subnets = module.vpc.subnet_ids
   key_name = module.pk.key_name
   private_key_path = module.pk.private_key_path
+  cloudflare_zone_ids = var.cloudflare_zone_ids
+}
+
+module "cloudflare-ddns" {
+  source      = "./modules/cloudflare-ddns"
+  public_ip = module.ec2.public_ip
+  cloudflare_zone_ids = var.cloudflare_zone_ids
 }
 
 # module "eip" {
