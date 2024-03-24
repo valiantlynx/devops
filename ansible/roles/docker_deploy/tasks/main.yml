@@ -11,6 +11,34 @@
   set_fact:
     detailed_domain_list: []
 
+# Ensure directories exist
+- name: Ensure Prometheus directory exists
+  become: true 
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/prometheus"
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
+
+- name: Ensure Grafana directory exists
+  become: true 
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/grafana"
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
+
+- name: Ensure nginx directory exists
+  become: true 
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/nginx"
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
+
 
 - name: Generate Docker Compose file
   ansible.builtin.template:
@@ -24,17 +52,19 @@
     dest: "{{ ansible_env.HOME }}/docker-compose.certbot.yml"
     mode: "0644"
 
-- name: Ensure Prometheus directory exists
-  ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/prometheus"
-    state: directory
-    mode: '0644'
+- name: Copy Prometheus configuration folder
+  ansible.builtin.copy:
+    src: prometheus/
+    dest: "{{ ansible_env.HOME }}/prometheus/"
+    force: no  # Do not overwrite the file if it already exists
 
-- name: Ensure nginx directory exists
-  ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/nginx"
-    state: directory
-    mode: '0755'
+- name: Copy Grafana configuration folder
+  ansible.builtin.copy:
+    src: grafana/
+    dest: "{{ ansible_env.HOME }}/grafana/"
+    force: no
+
+
     
 - name: Ensure ubuntu owns the home directory subfolders
   ansible.builtin.file:
@@ -46,12 +76,7 @@
   loop:
     - "{{ ansible_env.HOME }}/prometheus"
     - "{{ ansible_env.HOME }}/nginx"
-
-- name: Generate Prometheus file
-  ansible.builtin.template:
-    src: "prometheus/prometheus.yml.j2"
-    dest: "{{ ansible_env.HOME }}/prometheus/prometheus.yml"
-    mode: "0644"
+    - "{{ ansible_env.HOME }}/grafana"
 
 - name: Generate http NGINX configuration with dynamic domain names
   ansible.builtin.template:
@@ -80,14 +105,15 @@
 
 
 - name: Build detailed domain list from cloudflare_zone_ids
-  set_fact:
-    detailed_domain_list: "{{ detailed_domain_list + [item] }}"
-  loop: "{{ lookup('dict', cloudflare_zone_ids['cloudflare_zone_ids']) }}"
-  vars:
-    item:
-      domain: "{{ loop.key }}"
-      port: "{{ loop.value['port'] }}"
-      service: "{{ loop.value['service'] }}"
+  ansible.builtin.set_fact:
+    detailed_domain_list: "{{ detailed_domain_list | default([]) + [{'domain': item.key} | combine(item.value)] }}"
+  loop: "{{ lookup('dict', cloudflare_zone_ids) }}"
+  loop_control:
+    loop_var: item
+
+
+
+
 
 
 
@@ -102,6 +128,16 @@
   failed_when: cert_check.rc > 1
   ignore_errors: yes
 
+- name: Debug primary_domain variable content
+  ansible.builtin.debug:
+    var: primary_domain
+
+- name: Debug detailed_domain_list variable content
+  ansible.builtin.debug:
+    var: detailed_domain_list
+
+
+
 - name: Obtain SSL certificates with Certbot if needed
   command: docker-compose -f docker-compose.certbot.yml run --rm certbot
   become: true
@@ -109,7 +145,7 @@
     chdir: "{{ ansible_env.HOME }}/"
   when: cert_check.rc == 1
 
-- name: Generate https NGINX configuration with dynamic domain names
+- name: Generate https NGINX configuration with dynamic domain names (switch to HTTPS)
   ansible.builtin.template:
     src: "nginx/https.conf.j2"
     dest: "{{ ansible_env.HOME }}/nginx/nginx.conf"
@@ -120,6 +156,7 @@
   become: true
   args:
     chdir: "{{ ansible_env.HOME }}/"
+
 
 
 - name: Deploy services using Docker Compose
