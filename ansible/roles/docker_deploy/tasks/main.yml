@@ -39,6 +39,15 @@
     group: ubuntu
     mode: '0755'
 
+- name: Ensure alertmanager directory exists
+  become: true 
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/alertmanager"
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
+
 - name: Ensure nginx directory exists
   become: true 
   ansible.builtin.file:
@@ -79,6 +88,11 @@
     dest: "{{ ansible_env.HOME }}/uptime-kuma/"
     force: no
 
+- name: Copy alertmanager configuration folder
+  ansible.builtin.copy:
+    src: alertmanager/
+    dest: "{{ ansible_env.HOME }}/alertmanager/"
+    force: no
     
 - name: Ensure ubuntu owns the home directory subfolders
   ansible.builtin.file:
@@ -92,6 +106,7 @@
     - "{{ ansible_env.HOME }}/nginx"
     - "{{ ansible_env.HOME }}/grafana"
     - "{{ ansible_env.HOME }}/uptime-kuma"
+    - "{{ ansible_env.HOME }}/alertmanager"
 
 - name: Generate http NGINX configuration with dynamic domain names
   ansible.builtin.template:
@@ -171,8 +186,6 @@
   become: true
   args:
     chdir: "{{ ansible_env.HOME }}/"
-
-
 
 - name: Deploy services using Docker Compose
   command: docker-compose up -d

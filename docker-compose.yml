@@ -22,6 +22,8 @@ services:
       - alertmanager:alertmanager
     depends_on:
       - cadvisor
+    ports:
+      - 9090:9090
     networks:
       - monitoring
 
