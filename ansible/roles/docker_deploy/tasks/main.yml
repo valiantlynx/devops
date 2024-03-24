@@ -24,11 +24,19 @@
     dest: "{{ ansible_env.HOME }}/docker-compose.certbot.yml"
     mode: "0644"
 
-- name: Ensure Prometheus directory exists
-  ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/prometheus"
-    state: directory
-    mode: '0644'
+- name: Copy Prometheus folder to the Ubuntu user's home
+  ansible.builtin.copy:
+    dest: "{{ ansible_env.HOME }}/prometheus"
+    src: "prometheus"
+    mode: "0644"
+    force: true
+
+- name: Copy Grafana folder to the Ubuntu user's home
+  ansible.builtin.copy:
+    dest: "{{ ansible_env.HOME }}/grafana"
+    src: "grafana"
+    mode: "0644"
+    force: true
 
 - name: Ensure nginx directory exists
   ansible.builtin.file:
@@ -46,12 +54,7 @@
   loop:
     - "{{ ansible_env.HOME }}/prometheus"
     - "{{ ansible_env.HOME }}/nginx"
-
-- name: Generate Prometheus file
-  ansible.builtin.template:
-    src: "prometheus/prometheus.yml.j2"
-    dest: "{{ ansible_env.HOME }}/prometheus/prometheus.yml"
-    mode: "0644"
+    - "{{ ansible_env.HOME }}/grafana"
 
 - name: Generate http NGINX configuration with dynamic domain names
   ansible.builtin.template:
