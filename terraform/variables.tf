@@ -39,7 +39,7 @@ variable "cloudflare_zone_ids" {
           port    = 3001
         }
       ],
-      include_root = true,
+      include_root = false,
       include_subdomains = true
     }
   }
