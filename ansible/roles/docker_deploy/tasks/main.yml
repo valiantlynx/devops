@@ -53,6 +53,7 @@
     mode: "0644"
 
 - name: Synchronize Prometheus configuration
+  become: true
   ansible.builtin.synchronize:
     src: prometheus/
     dest: "{{ ansible_env.HOME }}/prometheus"
@@ -63,6 +64,7 @@
   delegate_to: localhost
 
 - name: Synchronize Grafana configuration
+  become: true
   ansible.builtin.synchronize:
     src: grafana/
     dest: "{{ ansible_env.HOME }}/grafana"
