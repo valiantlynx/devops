@@ -115,11 +115,6 @@
 
 
 
-- name: Stop existing Docker Compose services
-  command: docker-compose down --remove-orphans
-  become: true
-  args:
-    chdir: "{{ ansible_env.HOME }}/"
 
 
 - name: Determine the primary domain
@@ -142,6 +137,7 @@
     var: detailed_domain_list
 
 
+
 - name: Obtain SSL certificates with Certbot if needed
   command: docker-compose -f docker-compose.certbot.yml run --rm certbot
   become: true
@@ -149,12 +145,17 @@
     chdir: "{{ ansible_env.HOME }}/"
   when: cert_check.rc == 1
 
-- name: Generate https NGINX configuration with dynamic domain names
+- name: Generate https NGINX configuration with dynamic domain names (switch to HTTPS)
   ansible.builtin.template:
     src: "nginx/https.conf.j2"
     dest: "{{ ansible_env.HOME }}/nginx/nginx.conf"
     mode: "0644"
 
+- name: Stop existing Docker Compose services
+  command: docker-compose down --remove-orphans
+  become: true
+  args:
+    chdir: "{{ ansible_env.HOME }}/"
 
 
 

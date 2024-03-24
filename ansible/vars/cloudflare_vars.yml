@@ -7,3 +7,7 @@
     "port": 3000
     "service": "grafana"
     "zone_id": "cc6721eb589ec5e29adc0a306fa5d5fe"
+  "up.valiantlynx.com":
+    "port": 3001
+    "service": "uptime-kuma"
+    "zone_id": "cc6721eb589ec5e29adc0a306fa5d5fe"
