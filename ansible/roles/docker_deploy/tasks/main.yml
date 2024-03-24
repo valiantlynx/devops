@@ -52,27 +52,18 @@
     dest: "{{ ansible_env.HOME }}/docker-compose.certbot.yml"
     mode: "0644"
 
-- name: Synchronize Prometheus configuration
-  become: true
-  ansible.builtin.synchronize:
+- name: Copy Prometheus configuration folder
+  ansible.builtin.copy:
     src: prometheus/
-    dest: "{{ ansible_env.HOME }}/prometheus"
-    recursive: yes
-    delete: no
-    rsync_opts:
-      - "--ignore-existing"  # Do not overwrite existing files at the destination
-  delegate_to: localhost
+    dest: "{{ ansible_env.HOME }}/prometheus/"
+    force: no  # Do not overwrite the file if it already exists
 
-- name: Synchronize Grafana configuration
-  become: true
-  ansible.builtin.synchronize:
+- name: Copy Grafana configuration folder
+  ansible.builtin.copy:
     src: grafana/
-    dest: "{{ ansible_env.HOME }}/grafana"
-    recursive: yes
-    delete: no
-    rsync_opts:
-      - "--ignore-existing"
-  delegate_to: localhost
+    dest: "{{ ansible_env.HOME }}/grafana/"
+    force: no
+
 
     
 - name: Ensure ubuntu owns the home directory subfolders
