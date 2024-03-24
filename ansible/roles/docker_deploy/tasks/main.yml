@@ -105,15 +105,21 @@
 
 
 - name: Build detailed domain list from cloudflare_zone_ids
-  set_fact:
-    detailed_domain_list: "{{ detailed_domain_list + [item] }}"
-  loop: "{{ lookup('dict', cloudflare_zone_ids['cloudflare_zone_ids']) }}"
-  vars:
-    item:
-      domain: "{{ loop.key }}"
-      port: "{{ loop.value['port'] }}"
-      service: "{{ loop.value['service'] }}"
+  ansible.builtin.set_fact:
+    detailed_domain_list: "{{ detailed_domain_list | default([]) + [{'domain': item.key} | combine(item.value)] }}"
+  loop: "{{ lookup('dict', cloudflare_zone_ids) }}"
+  loop_control:
+    loop_var: item
 
+
+
+
+
+- name: Stop existing Docker Compose services
+  command: docker-compose down --remove-orphans
+  become: true
+  args:
+    chdir: "{{ ansible_env.HOME }}/"
 
 
 - name: Determine the primary domain
@@ -126,6 +132,15 @@
   register: cert_check
   failed_when: cert_check.rc > 1
   ignore_errors: yes
+
+- name: Debug primary_domain variable content
+  ansible.builtin.debug:
+    var: primary_domain
+
+- name: Debug detailed_domain_list variable content
+  ansible.builtin.debug:
+    var: detailed_domain_list
+
 
 - name: Obtain SSL certificates with Certbot if needed
   command: docker-compose -f docker-compose.certbot.yml run --rm certbot
@@ -140,11 +155,7 @@
     dest: "{{ ansible_env.HOME }}/nginx/nginx.conf"
     mode: "0644"
 
-- name: Stop existing Docker Compose services
-  command: docker-compose down --remove-orphans
-  become: true
-  args:
-    chdir: "{{ ansible_env.HOME }}/"
+
 
 
 - name: Deploy services using Docker Compose

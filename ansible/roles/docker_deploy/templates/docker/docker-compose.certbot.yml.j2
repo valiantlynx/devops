@@ -12,11 +12,10 @@ services:
       - monitoring
     command: >
       certonly --webroot -w /var/www/certbot --force-renewal --email valiantlynxz@gmail.com
-      {% for domain_detail in detailed_domain_list %}
-      -d {{ domain_detail.domain }}
+      {% for domain in cloudflare_zone_ids.keys() %}
+      -d {{ domain }}
       {% endfor %}
       --agree-tos --non-interactive
-
 networks:
   monitoring:
     name: monitoring

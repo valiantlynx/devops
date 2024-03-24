@@ -95,7 +95,7 @@ resource "null_resource" "run_ansible" {
       cd ../../../ansible/;
       ls -a;
       ls deploy-app.yml;
-      env ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ${self.triggers.inventory_file} deploy-app.yml -vvv
+      env ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ${self.triggers.inventory_file} deploy-app.yml
     EOF
 
     working_dir = path.module

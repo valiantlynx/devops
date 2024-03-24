@@ -145,6 +145,9 @@ terraform destroy --auto-approve
 ```bash
 ansible-playbook -i 13.60.38.190, -e "ansible_user=ubuntu ansible_ssh_private_key_file=modules/pk/terraform-key.pem" ../ansible/deploy-app.yml
 ansible-playbook -i ../ansible/inventory/dynamic_inventory.ini ../ansible/deploy-app.yml
+
+chmod 600 /home/valiantlynx/devops/terraform/modules/ec2/../../../ansible/inventory/dynamic_inventory.ini
+chmod 600 modules/pk/terraform-key.pem
 ```
 
 # error in terraform actions
