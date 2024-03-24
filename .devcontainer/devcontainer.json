@@ -1,6 +1,6 @@
 {
   "name": "devops-dev",
-  "dockerComposeFile": ["../docker-compose.yml"],
+  "dockerComposeFile": ["../docker-compose.dev.yml"],
   "service": "devops-dev",
   "workspaceFolder": "/app",
   "customizations": {

@@ -1,9 +1,19 @@
-version: "3.8"
+version: "3"
+
 services:
-  devops-dev:
+  devops:
+    container_name: devops
     build:
       context: .
-      dockerfile: Dockerfile # Point to the development Dockerfile
-    volumes:
-      - .:/app # Mount the project directory inside the container for live reloading
+      dockerfile: Dockerfile
     restart: always
+    ports:
+      - 3000:3000
+    networks:
+      - valiantlynx-turborepo
+
+# Define a network, which allows containers to communicate
+# with each other, by using their container name as a hostname
+networks:
+  valiantlynx-turborepo:
+    external: false
