@@ -27,37 +27,34 @@ resource "aws_instance" "web" {
   }
 }
 
+locals {
+  all_domains = merge(
+    # Handle root domains
+    { for domain, details in var.cloudflare_zone_ids : domain => {
+      zone_id = details.zone_id,
+      port    = details.port != null ? details.port : null,
+      service = details.service != null ? details.service : null
+    } if details.include_root },
 
-data "template_file" "cloudflare_vars" {
-  template = <<-EOT
-    ---
-    cloudflare_zone_ids:
-    %{ for domain, details in var.cloudflare_zone_ids ~}
-      %{ if details.include_root ~}
-      "${domain}":
-        zone_id: "${details.zone_id}"
-        service: "${details.service}"
-        port: ${details.port}
-      %{ endif ~}
-      %{ if details.include_subdomains ~}
-        %{ for subdomain in details.subdomains ~}
-        "${subdomain.name}.${domain}":
-          zone_id: "${details.zone_id}"
-          service: "${subdomain.service}"
-          port: ${subdomain.port}
-        %{ endfor ~}
-      %{ endif ~}
-    %{ endfor ~}
-  EOT
+    # Handle subdomains
+    merge([
+      for domain, details in var.cloudflare_zone_ids : 
+      { for subdomain in details.subdomains : "${subdomain.name}.${domain}" => {
+        zone_id = details.zone_id,
+        port    = subdomain.port,
+        service = subdomain.service
+      } if details.include_subdomains }
+    ]...)
+  )
 }
-
-
 
 resource "local_file" "cloudflare_vars_file" {
   filename = "${abspath(path.module)}/../../../ansible/vars/cloudflare_vars.yml"
-  content  = data.template_file.cloudflare_vars.rendered
+  
+  content = yamlencode({
+    cloudflare_zone_ids = local.all_domains
+  })
 }
-
 
 data "template_file" "inventory" {
   template = <<-EOT
