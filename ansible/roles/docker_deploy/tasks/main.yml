@@ -7,6 +7,11 @@
   ansible.builtin.debug:
     var: cloudflare_zone_ids
 
+- name: Initialize detailed domain list
+  set_fact:
+    detailed_domain_list: []
+
+
 - name: Generate Docker Compose file
   ansible.builtin.template:
     src: "docker/docker-compose.yaml.j2"
@@ -64,24 +69,15 @@
     chdir: "{{ ansible_env.HOME }}/" # Ensure this points to where docker-compose.yml is located
 
 
-- name: Build a detailed domain list from cloudflare_zone_ids for root domains
+- name: Build detailed domain list from cloudflare_zone_ids
   set_fact:
-    detailed_domain_list: "{{ detailed_domain_list | default([]) + 
-      [{'domain': item.key, 'service': item.value.service, 'port': item.value.port}] }}"
-  loop: "{{ lookup('dict', cloudflare_zone_ids) }}"
-  when: item.value.include_root
-  loop_control:
-    loop_var: item
-
-- name: Add subdomains with details to the domain list
-  set_fact:
-    detailed_domain_list: "{{ detailed_domain_list | default([]) + 
-      [{'domain': subdomain.name + '.' + item.key, 'service': subdomain.service, 'port': subdomain.port} 
-      for subdomain in item.value.subdomains] }}"
-  loop: "{{ lookup('dict', cloudflare_zone_ids) }}"
-  when: item.value.include_subdomains
-  loop_control:
-    loop_var: item
+    detailed_domain_list: "{{ detailed_domain_list + [item] }}"
+  loop: "{{ lookup('dict', cloudflare_zone_ids['cloudflare_zone_ids']) }}"
+  vars:
+    item:
+      domain: "{{ loop.key }}"
+      port: "{{ loop.value['port'] }}"
+      service: "{{ loop.value['service'] }}"
 
 
 
