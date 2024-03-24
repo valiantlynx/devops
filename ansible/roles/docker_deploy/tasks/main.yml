@@ -13,6 +13,7 @@
 
 # Ensure directories exist
 - name: Ensure Prometheus directory exists
+  become: true 
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/prometheus"
     state: directory
@@ -21,6 +22,7 @@
     mode: '0755'
 
 - name: Ensure Grafana directory exists
+  become: true 
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/grafana"
     state: directory
@@ -29,6 +31,7 @@
     mode: '0755'
 
 - name: Ensure nginx directory exists
+  become: true 
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/nginx"
     state: directory
