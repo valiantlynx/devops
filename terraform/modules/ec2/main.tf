@@ -32,24 +32,25 @@ data "template_file" "cloudflare_vars" {
   template = <<-EOT
     ---
     cloudflare_zone_ids:
-      %{ for domain, details in var.cloudflare_zone_ids ~}
-        %{ if details.include_root ~}
+    %{ for domain, details in var.cloudflare_zone_ids ~}
+      %{ if details.include_root ~}
       "${domain}":
         zone_id: "${details.zone_id}"
         service: "${details.service}"
         port: ${details.port}
-        %{ endif ~}
-        %{ if details.include_subdomains ~}
-          %{ for subdomain in details.subdomains ~}
-      "${subdomain.name}.${domain}":
-        zone_id: "${details.zone_id}"
-        service: "${subdomain.service}"
-        port: ${subdomain.port}
-          %{ endfor ~}
-        %{ endif ~}
-      %{ endfor ~}
+      %{ endif ~}
+      %{ if details.include_subdomains ~}
+        %{ for subdomain in details.subdomains ~}
+        "${subdomain.name}.${domain}":
+          zone_id: "${details.zone_id}"
+          service: "${subdomain.service}"
+          port: ${subdomain.port}
+        %{ endfor ~}
+      %{ endif ~}
+    %{ endfor ~}
   EOT
 }
+
 
 
 resource "local_file" "cloudflare_vars_file" {
