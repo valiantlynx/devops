@@ -11,6 +11,31 @@
   set_fact:
     detailed_domain_list: []
 
+# Ensure directories exist
+- name: Ensure Prometheus directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/prometheus"
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
+
+- name: Ensure Grafana directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/grafana"
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
+
+- name: Ensure nginx directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/nginx"
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
+
 
 - name: Generate Docker Compose file
   ansible.builtin.template:
@@ -24,26 +49,26 @@
     dest: "{{ ansible_env.HOME }}/docker-compose.certbot.yml"
     mode: "0644"
 
-- name: Copy Prometheus folder to the Ubuntu user's home
-  ansible.builtin.copy:
+- name: Synchronize Prometheus configuration
+  ansible.builtin.synchronize:
+    src: prometheus/
     dest: "{{ ansible_env.HOME }}/prometheus"
-    src: "prometheus"
-    mode: "0644"
-    force: true
+    recursive: yes
+    delete: no
+    rsync_opts:
+      - "--ignore-existing"  # Do not overwrite existing files at the destination
+  delegate_to: localhost
 
-- name: Copy Grafana folder to the Ubuntu user's home
-  become: true
-  ansible.builtin.copy:
+- name: Synchronize Grafana configuration
+  ansible.builtin.synchronize:
+    src: grafana/
     dest: "{{ ansible_env.HOME }}/grafana"
-    src: "grafana"
-    mode: "0644"
-    force: true
+    recursive: yes
+    delete: no
+    rsync_opts:
+      - "--ignore-existing"
+  delegate_to: localhost
 
-- name: Ensure nginx directory exists
-  ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/nginx"
-    state: directory
-    mode: '0755'
     
 - name: Ensure ubuntu owns the home directory subfolders
   ansible.builtin.file:
