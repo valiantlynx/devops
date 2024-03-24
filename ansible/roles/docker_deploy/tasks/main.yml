@@ -24,18 +24,17 @@
     dest: "{{ ansible_env.HOME }}/docker-compose.certbot.yml"
     mode: "0644"
 
-- name: Copy Prometheus folder
-  ansible.builtin.template:
-    src: "prometheus/"
-    dest: "{{ ansible_env.HOME }}/"
-    mode: "0644"
+- name: Ensure Prometheus directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/prometheus"
+    state: directory
+    mode: '0644'
 
 - name: Generate Prometheus file
   ansible.builtin.template:
     src: "prometheus/prometheus.yml.j2"
     dest: "{{ ansible_env.HOME }}/prometheus/prometheus.yml"
     mode: "0644"
-
 
 - name: Ensure nginx directory exists
   ansible.builtin.file:
