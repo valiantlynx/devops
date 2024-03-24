@@ -30,6 +30,15 @@
     group: ubuntu
     mode: '0755'
 
+- name: Ensure uptime-kuma directory exists
+  become: true 
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/uptime-kuma"
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
+
 - name: Ensure nginx directory exists
   become: true 
   ansible.builtin.file:
@@ -64,6 +73,11 @@
     dest: "{{ ansible_env.HOME }}/grafana/"
     force: no
 
+- name: Copy uptime-kuma configuration folder
+  ansible.builtin.copy:
+    src: uptime-kuma/
+    dest: "{{ ansible_env.HOME }}/uptime-kuma/"
+    force: no
 
     
 - name: Ensure ubuntu owns the home directory subfolders
@@ -77,6 +91,7 @@
     - "{{ ansible_env.HOME }}/prometheus"
     - "{{ ansible_env.HOME }}/nginx"
     - "{{ ansible_env.HOME }}/grafana"
+    - "{{ ansible_env.HOME }}/uptime-kuma"
 
 - name: Generate http NGINX configuration with dynamic domain names
   ansible.builtin.template:

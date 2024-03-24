@@ -3,7 +3,7 @@ services:
   devops-dev:
     build:
       context: .
-      dockerfile: Dockerfile # Point to the development Dockerfile
+      dockerfile: Dockerfile.dev # Point to the development Dockerfile
     volumes:
       - .:/app # Mount the project directory inside the container for live reloading
     restart: always
