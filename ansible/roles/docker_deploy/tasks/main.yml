@@ -30,18 +30,29 @@
     state: directory
     mode: '0644'
 
-- name: Generate Prometheus file
-  ansible.builtin.template:
-    src: "prometheus/prometheus.yml.j2"
-    dest: "{{ ansible_env.HOME }}/prometheus/prometheus.yml"
-    mode: "0644"
-
 - name: Ensure nginx directory exists
   ansible.builtin.file:
     path: "{{ ansible_env.HOME }}/nginx"
     state: directory
     mode: '0755'
     
+- name: Ensure ubuntu owns the home directory subfolders
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
+  loop:
+    - "{{ ansible_env.HOME }}/prometheus"
+    - "{{ ansible_env.HOME }}/nginx"
+
+- name: Generate Prometheus file
+  ansible.builtin.template:
+    src: "prometheus/prometheus.yml.j2"
+    dest: "{{ ansible_env.HOME }}/prometheus/prometheus.yml"
+    mode: "0644"
+
 - name: Generate http NGINX configuration with dynamic domain names
   ansible.builtin.template:
     src: "nginx/http.conf.j2"
