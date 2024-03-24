@@ -19,4 +19,4 @@ providers:
     updateIntervalSeconds: 10
     options:
       # <string, required> path to dashboard files on disk. Required
-      path: /etc/grafana/provisioning/dashboards
+      path: /etc/grafana/provisioning/dashboards/pre_loaded_dashboards

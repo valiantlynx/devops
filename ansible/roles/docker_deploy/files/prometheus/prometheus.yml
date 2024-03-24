@@ -1,6 +1,30 @@
+# my global config
 global:
-  scrape_interval: 15s
+  scrape_interval:     15s # By default, scrape targets every 15 seconds.
+  evaluation_interval: 15s # By default, scrape targets every 15 seconds.
+  # scrape_timeout is set to the global default (10s).
 
+  # Attach these labels to any time series or alerts when communicating with
+  # external systems (federation, remote storage, Alertmanager).
+  external_labels:
+      monitor: 'my-project'
+
+# Load and evaluate rules in this file every 'evaluation_interval' seconds.
+rule_files:
+  - 'alert.rules'
+  # - "first.rules"
+  # - "second.rules"
+
+# alert
+alerting:
+  alertmanagers:
+  - scheme: http
+    static_configs:
+    - targets:
+      - "alertmanager:9093"
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
 scrape_configs:
   - job_name: 'prometheus'
     static_configs:
@@ -18,18 +42,36 @@ scrape_configs:
 
   - job_name: 'node_exporter_altlokalt'
     static_configs:
-      - targets: ['16.16.28.87:9100']
+      - targets: ['altlokalt.com:9100']
 
   - job_name: 'cadvisor_altlokalt'
     static_configs:
-      - targets: ['16.16.28.87:8080']
+      - targets: ['altlokalt.com:8080']
 
 
 
   - job_name: 'node_exporter_animevariant'
     static_configs:
-      - targets: ['51.20.134.75:9100']
+      - targets: ['animevariant.com:9100']
 
   - job_name: 'cadvisor_animevariant'
     static_configs:
-      - targets: ['51.20.134.75:8080']
+      - targets: ['animevariant.com:8080']
+
+
+  - job_name: 'node_exporter_svelte-leaflet'
+    static_configs:
+      - targets: ['svelte-leaflet.valiantlynx.com:9100']
+
+  - job_name: 'cadvisor_svelte-leaflet'
+    static_configs:
+      - targets: ['svelte-leaflet.valiantlynx.com:8080']
+
+
+  - job_name: 'node_exporter_svelte-rich-text'
+    static_configs:
+      - targets: ['svelte-rich-text.valiantlynx.com:9100']
+
+  - job_name: 'cadvisor_svelte-rich-text'
+    static_configs:
+      - targets: ['svelte-rich-text.valiantlynx.com:8080']
