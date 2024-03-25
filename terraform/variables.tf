@@ -39,7 +39,7 @@ variable "cloudflare_zone_ids" {
           port    = 3001
         },
         {
-          name    = "up",
+          name    = "uptime",
           service = "uptime-kuma",
           port    = 3001
         }
