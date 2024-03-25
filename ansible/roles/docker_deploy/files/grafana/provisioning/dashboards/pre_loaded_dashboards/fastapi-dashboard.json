@@ -113,7 +113,7 @@
               "uid": "e4584a9f-5364-4b3d-a851-7abbc5250820"
             },
             "editorMode": "code",
-            "expr": "increase(http_requests_total{job=\"app\"}[1m])",
+            "expr": "increase(http_requests_total{job=\"svelte-manga-api\"}[1m])",
             "format": "time_series",
             "interval": "",
             "intervalFactor": 1,
@@ -473,7 +473,7 @@
               "uid": "e4584a9f-5364-4b3d-a851-7abbc5250820"
             },
             "editorMode": "code",
-            "expr": "http_request_duration_seconds_sum{job=\"app\",handler!=\"none\"} / http_request_duration_seconds_count",
+            "expr": "http_request_duration_seconds_sum{job=\"svelte-manga-api\",handler!=\"none\"} / http_request_duration_seconds_count",
             "format": "time_series",
             "interval": "",
             "intervalFactor": 1,
@@ -682,7 +682,7 @@
               "uid": "e4584a9f-5364-4b3d-a851-7abbc5250820"
             },
             "editorMode": "code",
-            "expr": "process_resident_memory_bytes{job=\"app\"}",
+            "expr": "process_resident_memory_bytes{job=\"svelte-manga-api\"}",
             "format": "time_series",
             "interval": "",
             "intervalFactor": 1,
@@ -785,7 +785,7 @@
               "uid": "e4584a9f-5364-4b3d-a851-7abbc5250820"
             },
             "editorMode": "code",
-            "expr": "rate(process_cpu_seconds_total{job=\"app\"}[30s])",
+            "expr": "rate(process_cpu_seconds_total{job=\"svelte-manga-api\"}[30s])",
             "format": "time_series",
             "interval": "",
             "intervalFactor": 1,
