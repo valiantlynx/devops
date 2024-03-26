@@ -1,0 +1,14 @@
+---
+  become: true
+  become_user: root
+  become_method: sudo
+  tasks:
+  - name: Remove useless packages from the cache
+    apt:
+     autoclean: yes
+  - name: Set up the swap area
+    command:  mkswap /dev/nvme1n1
+  - name: Enable swap
+    command: swapon /dev/nvme1n1
+  - name: Make this swap setting persist by adding following line in /etc/fstab
+    command: echo "/dev/nvme1n1 none swap sw 0 0" >> /etc/fstab
