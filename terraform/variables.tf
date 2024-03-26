@@ -39,9 +39,9 @@ variable "cloudflare_zone_ids" {
           port    = 3001
         },
         {
-          name    = "up",
-          service = "uptime-kuma",
-          port    = 3001
+          name    = "prometheus",
+          service = "prometheus",
+          port    = 9090
         }
       ],
       include_root = false,

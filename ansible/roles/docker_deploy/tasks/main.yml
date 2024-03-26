@@ -7,10 +7,6 @@
   ansible.builtin.debug:
     var: cloudflare_zone_ids
 
-- name: Initialize detailed domain list
-  set_fact:
-    detailed_domain_list: []
-
 # Ensure directories exist
 - name: Ensure Prometheus directory exists
   become: true 
@@ -74,13 +70,13 @@
   ansible.builtin.copy:
     src: prometheus/
     dest: "{{ ansible_env.HOME }}/prometheus/"
-    force: no  # Do not overwrite the file if it already exists
+    force: yes  
 
 - name: Copy Grafana configuration folder
   ansible.builtin.copy:
     src: grafana/
     dest: "{{ ansible_env.HOME }}/grafana/"
-    force: no
+    force: no # Do not overwrite the file if it already exists
 
 - name: Copy uptime-kuma configuration folder
   ansible.builtin.copy:
@@ -92,7 +88,7 @@
   ansible.builtin.copy:
     src: alertmanager/
     dest: "{{ ansible_env.HOME }}/alertmanager/"
-    force: no
+    force: yes 
     
 - name: Ensure ubuntu owns the home directory subfolders
   ansible.builtin.file:
@@ -133,20 +129,6 @@
   args:
     chdir: "{{ ansible_env.HOME }}/" # Ensure this points to where docker-compose.yml is located
 
-
-- name: Build detailed domain list from cloudflare_zone_ids
-  ansible.builtin.set_fact:
-    detailed_domain_list: "{{ detailed_domain_list | default([]) + [{'domain': item.key} | combine(item.value)] }}"
-  loop: "{{ lookup('dict', cloudflare_zone_ids) }}"
-  loop_control:
-    loop_var: item
-
-
-
-
-
-
-
 - name: Determine the primary domain
   set_fact:
     primary_domain: "{{ cloudflare_zone_ids.keys() | list | first }}"
@@ -161,12 +143,6 @@
 - name: Debug primary_domain variable content
   ansible.builtin.debug:
     var: primary_domain
-
-- name: Debug detailed_domain_list variable content
-  ansible.builtin.debug:
-    var: detailed_domain_list
-
-
 
 - name: Obtain SSL certificates with Certbot if needed
   command: docker-compose -f docker-compose.certbot.yml run --rm certbot
