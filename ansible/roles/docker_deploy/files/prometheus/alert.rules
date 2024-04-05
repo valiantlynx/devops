@@ -1,7 +1,6 @@
 groups:
-- name: example
+- name: devops
   rules:
-
   # Alert for any instance that is unreachable for >2 minutes.
   - alert: service_down
     expr: up == 0

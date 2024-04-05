@@ -76,13 +76,13 @@
   ansible.builtin.copy:
     src: grafana/
     dest: "{{ ansible_env.HOME }}/grafana/"
-    force: yes # Do not overwrite the file if it already exists
+    force: yes 
 
 - name: Copy uptime-kuma configuration folder
   ansible.builtin.copy:
     src: uptime-kuma/
     dest: "{{ ansible_env.HOME }}/uptime-kuma/"
-    force: no
+    force: no # Do not overwrite the file if it already exists
 
 - name: Generate Alertmanager configuration
   ansible.builtin.template:
@@ -173,7 +173,7 @@
     chdir: "{{ ansible_env.HOME }}/"
 
 - name: Delete all hanging stuff
-  command: docker system prune -a -f
+  command: docker system prune -a -f --volumes
   become: true
   args:
     chdir: "{{ ansible_env.HOME }}/"
