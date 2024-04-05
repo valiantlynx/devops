@@ -76,7 +76,7 @@
   ansible.builtin.copy:
     src: grafana/
     dest: "{{ ansible_env.HOME }}/grafana/"
-    force: no # Do not overwrite the file if it already exists
+    force: yes # Do not overwrite the file if it already exists
 
 - name: Copy uptime-kuma configuration folder
   ansible.builtin.copy:
