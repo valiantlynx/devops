@@ -1,0 +1,41 @@
+global:
+  # Global email configuration
+  smtp_smarthost: 'smtp.gmail.com:587'
+  smtp_from: 'valiantlynxz@gmail.com'
+  smtp_auth_username: 'valiantlynxz@gmail.com'
+  smtp_auth_password: '{{ smtp_password }}'
+  smtp_require_tls: true
+  
+route:
+  receiver: 'default-receiver'
+  routes:
+    # This route directs to the 'discord' receiver for all alerts
+    - match:
+        severity: critical
+      receiver: 'discord-webhook'
+    # Additional route for email notifications
+    - match:
+        severity: warning
+      receiver: 'email-notifications'
+
+receivers:
+  - name: 'default-receiver'
+
+  - name: 'discord-webhook'
+    webhook_configs:
+      - url: '{{ discord_webhook_url }}'
+        send_resolved: true
+
+  - name: 'email-notifications'
+    email_configs:
+      - to: 'valiantlynxz@gmail.com'
+        send_resolved: true
+        # Additional email configuration options can go here
+
+# Slack receiver configuration
+#  - name: 'slack'
+#    slack_configs:
+#      - send_resolved: true
+#        username: '<username>'
+#        channel: '#<channel-name>'
+#        api_url: '<incoming-webhook-url>'
