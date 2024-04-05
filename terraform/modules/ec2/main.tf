@@ -15,12 +15,7 @@ resource "aws_instance" "web" {
 
   provisioner "remote-exec" {
     inline = [
-      "echo 'SSH ready!'",
-      "sudo fallocate -l 1G /swapfile", # Create a 1GB swap file
-      "sudo chmod 600 /swapfile", # Secure swap file by setting up correct permissions
-      "sudo mkswap /swapfile", # Set up a Linux swap area
-      "sudo swapon /swapfile", # Enable the swap
-      "echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab" # Make the swap file permanent
+      "echo 'SSH ready!'"
     ]
 
     connection {
@@ -98,8 +93,6 @@ resource "null_resource" "run_ansible" {
       sleep 30;
       sudo apt update -y;
       cd ../../../ansible/;
-      ls -a;
-      ls deploy-app.yml;
       env ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ${self.triggers.inventory_file} deploy-app.yml
     EOF
 
