@@ -85,9 +85,10 @@
     force: no
 
 - name: Generate Alertmanager configuration
-  template:
-    src: config.yml.j2
-    dest: "{{ ansible_env.HOME }}/alertmanager/config.yml"
+  ansible.builtin.template:
+      src: "alertmanager/config.yml.j2"
+      dest: "{{ ansible_env.HOME }}/alertmanager/config.yml"
+      mode: "0644"
   vars:
     smtp_password: "{{ lookup('env', 'SMTP_PASSWORD') }}"
     discord_webhook_url: "{{ lookup('env', 'DISCORD_WEBHOOK_URL') }}"
