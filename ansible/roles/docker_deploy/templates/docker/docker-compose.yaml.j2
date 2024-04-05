@@ -35,9 +35,16 @@ services:
     volumes:
       - /etc/prometheus:/config
       - prometheus-data:/prometheus
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/:/etc/prometheus/
     command: "--config.file=/etc/prometheus/prometheus.yml"
     restart: unless-stopped
+    links:
+      - cadvisor:cadvisor
+      - alertmanager:alertmanager
+    depends_on:
+      - cadvisor
+    ports:
+      - 9090:9090
     networks:
       - monitoring
 
@@ -48,8 +55,7 @@ services:
       - 3000:3000
     volumes:
       - grafana-data:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning
-      - ./grafana/grafana.ini:/etc/grafana/grafana.ini
+      - ./grafana/:/etc/grafana/
     restart: unless-stopped
     networks:
       - monitoring
@@ -96,6 +102,19 @@ services:
     restart: always
     networks:
       - monitoring
-      
+
+  alertmanager:
+    image: prom/alertmanager
+    container_name: alertmanager
+    ports:
+      - 9093:9093
+    volumes:
+      - ./alertmanager/:/etc/alertmanager/
+    networks:
+      - monitoring
+    restart: always
+    command:
+      - '--config.file=/etc/alertmanager/config.yml'
+      - '--storage.path=/alertmanager'    
 networks:
   monitoring: {}
