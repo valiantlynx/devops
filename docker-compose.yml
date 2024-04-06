@@ -88,7 +88,7 @@ services:
     ports:
       - 9093:9093
     volumes:
-      - ./ansible/roles/docker_deploy/files/alertmanager/:/etc/alertmanager/
+      - ./alertmanager/:/etc/alertmanager/
     networks:
       - monitoring
     restart: always

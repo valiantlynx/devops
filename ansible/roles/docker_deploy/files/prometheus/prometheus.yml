@@ -7,7 +7,7 @@ global:
   # Attach these labels to any time series or alerts when communicating with
   # external systems (federation, remote storage, Alertmanager).
   external_labels:
-      monitor: 'my-project'
+      monitor: 'devops'
 
 # Load and evaluate rules in this file every 'evaluation_interval' seconds.
 rule_files:
@@ -90,3 +90,12 @@ scrape_configs:
     scrape_interval: 5s
     static_configs:
       - targets: ['svelte-manga-api.valiantlynx.com']
+
+
+  - job_name: 'node_exporter_kasm'
+    static_configs:
+      - targets: ['kasm.valiantlynx.com:9100']
+
+  - job_name: 'cadvisor_kasm'
+    static_configs:
+      - targets: ['kasm.valiantlynx.com:8080']
